@@ -52,7 +52,7 @@ main() {
   done
 
   cd "$tmp_dir"
-  bash ./one-click-system-tuning.sh "$@"
+  bash ./one-click-system-tuning.sh --yes "$@"
 }
 
 main "$@"

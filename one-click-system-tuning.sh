@@ -61,6 +61,10 @@ EOF
     return 0
   fi
 
+  if [[ ! -t 0 ]]; then
+    return 0
+  fi
+
   read -r -p "Type yes to continue: " answer
   [[ "${answer}" == "yes" ]]
 }
