@@ -91,15 +91,26 @@ script_dir() {
   cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
 }
 
+step_label() {
+  case "$1" in
+    step-1-bootstrap.sh) printf '01 基础初始化' ;;
+    step-4-tools.sh) printf '04 常用工具' ;;
+    step-5-bbr.sh) printf '05 BBR 调优' ;;
+    step-13-apps.sh) printf '13 安全防护' ;;
+    step-timezone.sh) printf 'time 时区设置' ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
+
 confirm() {
   cat <<EOF
 ------------------------------------------------
 This will run the following local scripts in order:
-1. step-1-bootstrap.sh
-2. step-4-tools.sh
-3. step-5-bbr.sh
-4. step-13-apps.sh
-5. step-timezone.sh (${DEFAULT_TIMEZONE} or Asia/Hong_Kong)
+1. $(step_label step-1-bootstrap.sh)
+2. $(step_label step-4-tools.sh)
+3. $(step_label step-5-bbr.sh)
+4. $(step_label step-13-apps.sh)
+5. $(step_label step-timezone.sh) (${DEFAULT_TIMEZONE} or Asia/Hong_Kong)
 ------------------------------------------------
 EOF
 
@@ -119,17 +130,19 @@ run_step() {
   local step="$1"
   shift
   local step_path
+  local label
   step_path="$(script_dir)/${step}"
+  label="$(step_label "${step}")"
 
-  step_banner "BEGIN ${step}" "RUNNING" "yellow"
+  step_banner "BEGIN ${label}" "RUNNING" "yellow"
   log "Running ${step_path}"
   if bash "${step_path}" "$@"; then
-    log "Completed ${step}"
-    step_banner "OK ${step}" "SUCCESS" "green"
+    log "Completed ${label}"
+    step_banner "OK ${label}" "SUCCESS" "green"
   else
     local exit_code=$?
-    log "Failed ${step} with exit code ${exit_code}"
-    step_banner "FAIL ${step}" "FAILED" "red"
+    log "Failed ${label} with exit code ${exit_code}"
+    step_banner "FAIL ${label}" "FAILED" "red"
     exit "${exit_code}"
   fi
 }
