@@ -7,9 +7,8 @@
 1. `01-bootstrap-curl-update.sh`
 2. `02-install-base-tools.sh`
 3. `03-enable-bbr.sh`
-4. `04-install-cloudreve.sh`
-5. `05-install-uptime-kuma.sh`
-6. `06-set-timezone.sh`
+4. `04-install-fail2ban.sh`
+5. `05-set-timezone.sh`
 
 ## 在线安装
 
@@ -33,4 +32,4 @@ sudo bash one-click-system-tuning.sh --timezone Asia/Shanghai
 
 - 每一步都是仓库内的本地脚本。
 - 不再依赖 `kejilion.sh` 的在线地址。
-- Cloudreve 和 Uptime Kuma 采用本地 Docker 方式部署。
+- 只保留你要的基础工具、BBR、fail2ban 和时区设置。

@@ -13,6 +13,7 @@ if ! command -v apt-get >/dev/null 2>&1; then
 fi
 
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  curl \
   wget \
   sudo \
   socat \
@@ -28,4 +29,12 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
   fzf \
   vim \
   nano \
-  git
+  git \
+  docker.io \
+  ca-certificates
+
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl enable --now docker >/dev/null 2>&1 || true
+else
+  service docker start >/dev/null 2>&1 || true
+fi

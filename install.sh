@@ -8,9 +8,8 @@ FILES=(
   "01-bootstrap-curl-update.sh"
   "02-install-base-tools.sh"
   "03-enable-bbr.sh"
-  "04-install-cloudreve.sh"
-  "05-install-uptime-kuma.sh"
-  "06-set-timezone.sh"
+  "04-install-fail2ban.sh"
+  "05-set-timezone.sh"
 )
 
 need_cmd() {

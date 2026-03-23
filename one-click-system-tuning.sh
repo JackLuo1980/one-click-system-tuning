@@ -52,9 +52,8 @@ This will run the following local scripts in order:
 1. 01-bootstrap-curl-update.sh
 2. 02-install-base-tools.sh
 3. 03-enable-bbr.sh
-4. 04-install-cloudreve.sh
-5. 05-install-uptime-kuma.sh
-6. 06-set-timezone.sh (${DEFAULT_TIMEZONE} or Asia/Hong_Kong)
+4. 04-install-fail2ban.sh
+5. 05-set-timezone.sh (${DEFAULT_TIMEZONE} or Asia/Hong_Kong)
 ------------------------------------------------
 EOF
 
@@ -104,9 +103,8 @@ main() {
   run_step 01-bootstrap-curl-update.sh
   run_step 02-install-base-tools.sh
   run_step 03-enable-bbr.sh
-  run_step 04-install-cloudreve.sh
-  run_step 05-install-uptime-kuma.sh
-  run_step 06-set-timezone.sh "$timezone"
+  run_step 04-install-fail2ban.sh
+  run_step 05-set-timezone.sh "$timezone"
 
   log "Done"
 }
