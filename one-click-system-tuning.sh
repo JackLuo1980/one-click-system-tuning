@@ -49,11 +49,11 @@ confirm() {
   cat <<EOF
 ------------------------------------------------
 This will run the following local scripts in order:
-1. 01-bootstrap-curl-update.sh
-2. 02-install-base-tools.sh
-3. 03-enable-bbr.sh
-4. 04-install-fail2ban.sh
-5. 05-set-timezone.sh (${DEFAULT_TIMEZONE} or Asia/Hong_Kong)
+1. step-1-bootstrap.sh
+2. step-4-tools.sh
+3. step-5-bbr.sh
+4. step-13-apps.sh
+5. step-timezone.sh (${DEFAULT_TIMEZONE} or Asia/Hong_Kong)
 ------------------------------------------------
 EOF
 
@@ -100,11 +100,11 @@ main() {
   require_root
   confirm
 
-  run_step 01-bootstrap-curl-update.sh
-  run_step 02-install-base-tools.sh
-  run_step 03-enable-bbr.sh
-  run_step 04-install-fail2ban.sh
-  run_step 05-set-timezone.sh "$timezone"
+  run_step step-1-bootstrap.sh
+  run_step step-4-tools.sh
+  run_step step-5-bbr.sh
+  run_step step-13-apps.sh
+  run_step step-timezone.sh "$timezone"
 
   log "Done"
 }
