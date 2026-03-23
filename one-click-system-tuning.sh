@@ -20,6 +20,12 @@ log() {
   printf '[%s] %s\n' "$(date +'%F %T')" "$*"
 }
 
+step_banner() {
+  printf '\n================================================\n'
+  printf '%s\n' "$1"
+  printf '================================================\n'
+}
+
 require_root() {
   if [[ "${EUID}" -ne 0 ]]; then
     echo "Please run this script as root."
@@ -72,8 +78,20 @@ EOF
 run_step() {
   local step="$1"
   shift
-  log "Running ${step}"
-  bash "$(script_dir)/${step}" "$@"
+  local step_path
+  step_path="$(script_dir)/${step}"
+
+  step_banner "BEGIN ${step}"
+  log "Running ${step_path}"
+  if bash "${step_path}" "$@"; then
+    log "Completed ${step}"
+    step_banner "OK ${step}"
+  else
+    local exit_code=$?
+    log "Failed ${step} with exit code ${exit_code}"
+    step_banner "FAIL ${step}"
+    exit "${exit_code}"
+  fi
 }
 
 main() {
@@ -104,13 +122,14 @@ main() {
   require_root
   confirm
 
+  step_banner "START LOCAL SERVER TUNING"
   run_step step-1-bootstrap.sh
   run_step step-4-tools.sh
   run_step step-5-bbr.sh
   run_step step-13-apps.sh
   run_step step-timezone.sh "$timezone"
-
-  log "Done"
+  step_banner "DONE"
+  log "All steps finished successfully"
 }
 
 main "$@"
