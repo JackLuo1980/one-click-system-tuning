@@ -20,10 +20,50 @@ log() {
   printf '[%s] %s\n' "$(date +'%F %T')" "$*"
 }
 
+supports_color() {
+  [[ -t 1 ]] && [[ "${TERM:-}" != "dumb" ]]
+}
+
+color_code() {
+  if ! supports_color; then
+    return 0
+  fi
+
+  case "$1" in
+    reset) printf '\033[0m' ;;
+    bold) printf '\033[1m' ;;
+    green) printf '\033[32m' ;;
+    red) printf '\033[31m' ;;
+    yellow) printf '\033[33m' ;;
+    cyan) printf '\033[36m' ;;
+  esac
+}
+
+color_wrap() {
+  local color="$1"
+  shift
+
+  if supports_color; then
+    printf '%s%s%s' "$(color_code "$color")" "$*" "$(color_code reset)"
+  else
+    printf '%s' "$*"
+  fi
+}
+
 step_banner() {
-  printf '\n================================================\n'
-  printf '%s\n' "$1"
-  printf '================================================\n'
+  local label="$1"
+  local status="${2:-}"
+  local status_color="${3:-}"
+
+  printf '\n%s\n' "$(color_wrap cyan '================================================')"
+
+  if [[ -n "$status" ]]; then
+    printf '%s\n' "$(color_wrap bold "$(color_wrap yellow "$label") $(color_wrap "$status_color" "$status")")"
+  else
+    printf '%s\n' "$(color_wrap bold "$(color_wrap yellow "$label")")"
+  fi
+
+  printf '%s\n' "$(color_wrap cyan '================================================')"
 }
 
 require_root() {
@@ -81,15 +121,15 @@ run_step() {
   local step_path
   step_path="$(script_dir)/${step}"
 
-  step_banner "BEGIN ${step}"
+  step_banner "BEGIN ${step}" "RUNNING" "yellow"
   log "Running ${step_path}"
   if bash "${step_path}" "$@"; then
     log "Completed ${step}"
-    step_banner "OK ${step}"
+    step_banner "OK ${step}" "SUCCESS" "green"
   else
     local exit_code=$?
     log "Failed ${step} with exit code ${exit_code}"
-    step_banner "FAIL ${step}"
+    step_banner "FAIL ${step}" "FAILED" "red"
     exit "${exit_code}"
   fi
 }
@@ -122,13 +162,13 @@ main() {
   require_root
   confirm
 
-  step_banner "START LOCAL SERVER TUNING"
+  step_banner "START LOCAL SERVER TUNING" "READY" "yellow"
   run_step step-1-bootstrap.sh
   run_step step-4-tools.sh
   run_step step-5-bbr.sh
   run_step step-13-apps.sh
   run_step step-timezone.sh "$timezone"
-  step_banner "DONE"
+  step_banner "DONE" "SUCCESS" "green"
   log "All steps finished successfully"
 }
 
