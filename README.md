@@ -24,6 +24,15 @@ curl -fsSL https://raw.githubusercontent.com/JackLuo1980/one-click-system-tuning
 sudo bash one-click-system-tuning.sh --timezone Asia/Shanghai
 ```
 
+## nft 端口映射模板
+
+```bash
+sudo bash nft-port-map.sh list
+sudo bash nft-port-map.sh add 12225 172.81.111.70 12225
+sudo bash nft-port-map.sh delete 54322 54323
+sudo bash nft-port-map.sh flush
+```
+
 ## 时区参数
 
 - `Asia/Shanghai`
@@ -39,3 +48,4 @@ sudo bash one-click-system-tuning.sh --timezone Asia/Shanghai
 - `BBR 调优` 对应 `step-5-bbr.sh`。
 - `安全防护` 对应 `step-13-apps.sh`。
 - `时区设置` 对应 `step-timezone.sh`。
+- `常用工具` 现在包含 `cron`、`acme`，并通过 Docker 官方 CE 仓库安装 Docker。
