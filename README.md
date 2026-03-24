@@ -48,4 +48,4 @@ sudo bash nft-port-map.sh flush
 - `BBR 调优` 对应 `step-5-bbr.sh`。
 - `安全防护` 对应 `step-13-apps.sh`。
 - `时区设置` 对应 `step-timezone.sh`。
-- `常用工具` 现在包含 `cron`、`acme`，并通过 Docker 官方 CE 仓库安装 Docker。
+- `常用工具` 现在包含 `cron`、`acme.sh`，并通过 Docker 官方 CE 仓库安装 Docker，失败时会自动打印检测信息并重试。

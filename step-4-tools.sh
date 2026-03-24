@@ -16,7 +16,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
   curl \
   ca-certificates \
   cron \
-  acme \
+  acme.sh \
   wget \
   sudo \
   socat \
@@ -37,6 +37,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
 install_docker_ce() {
   local os_id="${ID:-}"
   local os_version="${VERSION_CODENAME:-}"
+  local docker_list_path="/etc/apt/sources.list.d/docker.list"
 
   if [[ -z "$os_id" || -z "$os_version" ]]; then
     . /etc/os-release
@@ -53,17 +54,34 @@ install_docker_ce() {
   curl -fsSL https://download.docker.com/linux/${os_id}/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   chmod a+r /etc/apt/keyrings/docker.gpg
 
-  cat >/etc/apt/sources.list.d/docker.list <<EOF
+  cat >"${docker_list_path}" <<EOF
 deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${os_id} ${os_version} stable
 EOF
 
+  apt_get_docker_packages() {
+    DEBIAN_FRONTEND=noninteractive apt-get update -y
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+      docker-ce \
+      docker-ce-cli \
+      containerd.io \
+      docker-buildx-plugin \
+      docker-compose-plugin
+  }
+
+  if apt_get_docker_packages; then
+    return 0
+  fi
+
+  echo "Docker CE 安装第一次失败，正在打印检测信息并重试..."
+  echo "=== /etc/os-release ==="
+  cat /etc/os-release
+  echo "=== Docker 仓库信息 ==="
+  cat "${docker_list_path}"
+  echo "=== Docker 包候选信息 ==="
+  apt-cache policy docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin || true
+
   DEBIAN_FRONTEND=noninteractive apt-get update -y
-  DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    docker-ce \
-    docker-ce-cli \
-    containerd.io \
-    docker-buildx-plugin \
-    docker-compose-plugin
+  apt_get_docker_packages
 }
 
 install_docker_ce
