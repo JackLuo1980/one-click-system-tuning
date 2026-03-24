@@ -34,6 +34,33 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
   gnupg \
   lsb-release
 
+purge_conflicting_docker_packages() {
+  local pkgs=(
+    docker-buildx
+    docker-buildx-plugin
+    docker-compose
+  )
+  local pkg
+
+  for pkg in "${pkgs[@]}"; do
+    if dpkg -s "$pkg" >/dev/null 2>&1; then
+      DEBIAN_FRONTEND=noninteractive apt-get purge -y "$pkg" >/dev/null 2>&1 || true
+    fi
+  done
+}
+
+print_docker_ce_diagnostics() {
+  echo "Docker CE 安装失败，正在打印检测信息并准备重试..."
+  echo "=== /etc/os-release ==="
+  cat /etc/os-release
+  echo "=== 冲突包状态 ==="
+  dpkg -l | awk '/docker-(buildx|compose)|docker\.io|containerd|runc/ {print}' || true
+  echo "=== Docker 仓库信息 ==="
+  cat /etc/apt/sources.list.d/docker.list 2>/dev/null || true
+  echo "=== Docker 包候选信息 ==="
+  apt-cache policy docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin || true
+}
+
 install_docker_ce() {
   local os_id="${ID:-}"
   local os_version="${VERSION_CODENAME:-}"
@@ -68,18 +95,13 @@ EOF
       docker-compose-plugin
   }
 
+  purge_conflicting_docker_packages
   if apt_get_docker_packages; then
     return 0
   fi
 
-  echo "Docker CE 安装第一次失败，正在打印检测信息并重试..."
-  echo "=== /etc/os-release ==="
-  cat /etc/os-release
-  echo "=== Docker 仓库信息 ==="
-  cat "${docker_list_path}"
-  echo "=== Docker 包候选信息 ==="
-  apt-cache policy docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin || true
-
+  print_docker_ce_diagnostics
+  purge_conflicting_docker_packages
   DEBIAN_FRONTEND=noninteractive apt-get update -y
   apt_get_docker_packages
 }
